@@ -1,3 +1,8 @@
 packages:
   .
   ~/code/purview
+
+-- source-repository-package
+--   type: git
+--   location: https://github.com/purview-framework/purview.git
+--   tag: 074ad82157650f682ed552eb2a0c15bec87f6ca1
