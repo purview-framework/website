@@ -32,10 +32,13 @@ titleStyle = [style|
   letter-spacing: 5px;
 |]
 
+green = "#c1db75"
+orange = "#eebd53"
+
 alternateColors :: String -> [Purview event m]
 alternateColors str =
   let
-    letterAndColor = zip str (cycle ["#c1db75", "#eebd53"])
+    letterAndColor = zip str (cycle [green, orange])
   in
     fmap
       (\(letter, color) -> istyle ("color: " <> color) $ span [ text [letter] ] )
@@ -75,23 +78,43 @@ dividerStyle = [style|
   margin-bottom: 75px;
 |]
 
+decoratorStyle = [style|
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: black;
+  margin-top: 30px;
+|]
+
+fancifyStyle = [style|
+  display: flex;
+|]
+
+fancify :: Purview event m -> Purview event m
+fancify item =
+  let
+    decorator = decoratorStyle $ span []
+    decoratorA = istyle ("background-color: " <> green) decorator
+    decoratorB = istyle ("background-color: " <> orange) decorator
+  in fancifyStyle $ span [ decoratorA, istyle "padding: 0 15px;" item, decoratorB ]
+
 composable = div
-  [ h3 [ text "Composable" ]
+  [ fancify $ h3 [ text "Composable" ]
   , p [ text "words words words" ]
   ]
 
 familiar = div
-  [ h3 [ text "Familiar" ]
+  [ fancify $ h3 [ text "Familiar" ]
   , p [ text "The classic event based state management solution blah blah" ]
   ]
 
 effectful = div
-  [ h3 [ text "Effectful" ]
+  [ fancify $ h3 [ text "Effectful" ]
   , p [ text "yeah it works beautiful with effects blah" ]
   ]
 
 practical = div
-  [ h3 [ text "Practical" ]
+  [ fancify $ h3 [ text "Practical" ]
   , p [ text "it's not some re-imagining of the web or some bs" ]
   ]
 
@@ -105,7 +128,6 @@ featuresStyle = [style|
 featureStyle = [style|
   text-align: left;
   border-radius: 10px;
-  background-color: #f2f0e6;
   margin: 20px;
   padding: 0px 30px 10px 30px;
   width: 420px;
