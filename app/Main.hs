@@ -22,12 +22,11 @@ link location str = aStyle $ href location $ a [ text str ]
 
 headlineStyle = [style|
   font-style: normal;
-  color: #b76e79;
 |]
 
 titleStyle = [style|
   font-family: "Sagittarius A", "Sagittarius B";
-  font-size: 100px;
+  font-size: 124px;
   font-weight: 400;
   margin: 1rem;
   letter-spacing: 5px;
@@ -51,6 +50,7 @@ subtitleStyle = [style|
   font-size: 24px;
   margin: 1rem;
   font-weight: 400;
+  color: #514c39;
 |]
 
 subtitle str
@@ -71,23 +71,62 @@ topBoxStyle = [style|
 |]
 
 dividerStyle = [style|
-  border: 3px solid #b76e79;
-  background-color: #b76e79;
-  max-width: 15px;
-  height: 15px;
-  width: 15px;
-  border-radius: 25px;
   margin: auto;
-  margin-bottom: 45px;
+  margin-bottom: 75px;
 |]
 
+composable = div
+  [ h3 [ text "Composable" ]
+  , p [ text "words words words" ]
+  ]
+
+familiar = div
+  [ h3 [ text "Familiar" ]
+  , p [ text "The classic event based state management solution blah blah" ]
+  ]
+
+effectful = div
+  [ h3 [ text "Effectful" ]
+  , p [ text "yeah it works beautiful with effects blah" ]
+  ]
+
+practical = div
+  [ h3 [ text "Practical" ]
+  , p [ text "it's not some re-imagining of the web or some bs" ]
+  ]
+
+featuresStyle = [style|
+  margin-top: 150px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+|]
+
+featureStyle = [style|
+  text-align: left;
+  border-radius: 10px;
+  background-color: #f2f0e6;
+  margin: 20px;
+  padding: 0px 30px 10px 30px;
+  width: 420px;
+|]
+
+features = featuresStyle
+  $ div
+  $ fmap featureStyle
+      [ composable
+      , familiar
+      , effectful
+      , practical
+      ]
 
 topLevel = div
   [ nav
   , topBoxStyle $ div
       [ title $ alternateColors "Purview"
-      -- , dividerStyle $ div []
+      , dividerStyle $ div []
       , subtitle "Build server rendered, interactive websites with Haskell"
+      , features
       ]
   ]
 
@@ -102,6 +141,11 @@ htmlHeadAdditions = [r|
       font-size: 18px;
       max-width: 65rem;
       margin: auto;
+      color: #514c39;
+    }
+    a {
+      color: #514c39;
+      text-decoration: none;
     }
   </style>
   <link rel="stylesheet" type="text/css" href="https://cloud.typography.com/6107252/6057832/css/fonts.css" />
