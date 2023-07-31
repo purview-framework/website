@@ -28,9 +28,31 @@ titleStyle = [style|
   font-family: "Sagittarius A", "Sagittarius B";
   font-size: 124px;
   font-weight: 400;
-  margin: 1rem;
+  margin: 0 auto;
+  padding: 0;
   letter-spacing: 5px;
+  width: 350px;
 |]
+
+innerBoxStyle = [style|
+  border: 30px solid #eebd53;
+  border-radius: 15px;
+  width: 430px;
+  height: 160px;
+  position: relative;
+  left: -0px;
+|]
+
+outerBoxStyle = [style|
+  border: 30px solid #c1db75;
+  border-radius: 50px;
+  width: 490px;
+  margin: 0 auto;
+  position: relative;
+|]
+
+innerBox item = innerBoxStyle $ div [ item ]
+outerBox item = outerBoxStyle $ div [ item ]
 
 green = "#c1db75"
 orange = "#eebd53"
@@ -45,7 +67,9 @@ alternateColors str =
       letterAndColor
 
 title str
-  = titleStyle
+  = outerBox
+  $ innerBox
+  $ titleStyle
   $ headlineStyle
   $ h1 str
 
