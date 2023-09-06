@@ -1,10 +1,13 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
 module Main where
 
 import Prelude hiding (div, span)
 import Text.RawString.QQ (r)
+import Data.Typeable
 
 import Purview
+import Code (code)
 
 navStyle = [style|
   width: 100%;
@@ -18,7 +21,10 @@ aStyle = [style|
   text-decoration: none;
 |]
 
-link location str = aStyle $ href location $ a [ text str ]
+link location str =
+  aStyle
+  $ href location
+  $ a [ text str ]
 
 headlineStyle = [style|
   font-style: normal;
@@ -125,6 +131,11 @@ fancify item =
 composable = div
   [ fancify $ h3 [ text "Composable" ]
   , p [ text "words words words" ]
+  , code [r|
+main = do
+  putStrLn "hello"
+  pure ()
+    |]
   ]
 
 familiar = div
@@ -155,6 +166,10 @@ featureStyle = [style|
   margin: 20px;
   padding: 0px 30px 10px 30px;
   width: 420px;
+
+  div {
+    width: 666px;
+  }
 |]
 
 features = featuresStyle
@@ -166,17 +181,30 @@ features = featuresStyle
       , practical
       ]
 
-topLevel = div
-  [ nav
-  , topBoxStyle $ div
-      [ title $ alternateColors "Purview"
-      , dividerStyle $ div []
-      , subtitle "Build server rendered, interactive websites with Haskell"
-      , features
-      ]
-  ]
+topLevel location = case location of
+  "/" -> div
+    [ nav
+    , topBoxStyle $ div
+        [ title $ alternateColors "Purview"
+        , dividerStyle $ div []
+        , subtitle "Build server rendered, interactive websites with Haskell"
+        , features
+        ]
+    ]
+  "/docs" -> div
+    [ nav
+    , div [ text "docs" ]
+    ]
+  _ -> div [ text "Page not found" ]
 
-router _ = topLevel
+
+data RouterEvents = SetLocation String
+
+router :: String -> Purview () m
+router initialLocation = handler' [] initialLocation reducer topLevel
+  where
+    reducer (SetLocation "/doc") _ = ("/doc", [])
+    reducer (SetLocation "/"   ) _ = ("/",    [])
 
 htmlHeadAdditions = [r|
   <style>
@@ -198,4 +226,4 @@ htmlHeadAdditions = [r|
 |]
 
 main :: IO ()
-main = serve defaultConfiguration { htmlHead=htmlHeadAdditions } router
+main = serve defaultConfiguration { htmlHead=htmlHeadAdditions, port=8001 } router
