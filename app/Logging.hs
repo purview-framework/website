@@ -21,19 +21,19 @@ type instance DispatchOf Time = Dynamic
 getTime :: Time :> es => Eff es String
 getTime = send GetCurrentTime
 
-data Actions = GetTime
+data Event = GetTime
   deriving (Show, Eq)
 
 reducer
   :: Time :> es
-  => Actions
+  => Event
   -> String
-  -> Eff es (String, [DirectedEvent () Actions])
+  -> Eff es (String, [DirectedEvent p Event])
 reducer _ _ = do
   time <- getTime
   pure (time, [])
 
-timeHandler :: (String -> View Actions) -> View ()
+timeHandler :: (String -> View Event) -> View ()
 timeHandler = effectHandler' [Self GetTime] "" reducer
 
 runTimeIO
@@ -50,6 +50,9 @@ component _ = timeHandler view
 
 type View actions = forall es. Time :> es => Purview actions (Eff es)
 
-temp = serve
-  defaultConfiguration { interpreter = runEff . runTimeIO }
+interpreter' :: Eff '[Time, IOE] a -> IO a
+interpreter' = runEff . runTimeIO
+
+main = serve
+  defaultConfiguration { interpreter = interpreter' }
   component

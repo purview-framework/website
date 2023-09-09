@@ -3,7 +3,7 @@
 module Main where
 
 import Prelude hiding (div, span)
-import Text.RawString.QQ (r)
+import Text.RawString.QQ (r, rQ)
 import Data.Typeable
 
 import Purview
@@ -130,28 +130,77 @@ fancify item =
 
 composable = div
   [ fancify $ h3 [ text "Composable" ]
-  , p [ text "words words words" ]
-  , code [r|
-main = do
-  putStrLn "hello"
-  pure ()
+  , p [ text "A different way of building HTML, where attributes flow down to concrete HTML." ]
+  , code [rQ|
+submitStyle = [style|
+  color: blue;
+  font-size: 36px;
+|~]
+
+submitAttr =
+  Attribute "type" "submit"
+
+submitButton
+  = submitAttr
+  $ submitStyle
+  $ button [ text "Submit" ]
     |]
   ]
 
 familiar = div
   [ fancify $ h3 [ text "Familiar" ]
-  , p [ text "The classic event based state management solution blah blah" ]
+  , p [ text "Handling events follows the usual state -> event -> new state, with a little extra to send new events to itself or a parent." ]
+  , code [r|
+data Counter =
+  Increment | Decrement
+  deriving Show
+
+countHandler = handler' [] 0 reducer
+  where
+    reducer state Increment =
+      (state + 1, [])
+    reducer state Decrement =
+      (state - 1, [])
+
+view count = div
+  [ h1 [ text (show count) ]
+  , onClick Increment $ button [ text "+" ]
+  , onClick Decrement $ button [ text "-" ]
+  ]
+
+component = countHandler view
+|]
   ]
 
 effectful = div
   [ fancify $ h3 [ text "Effectful" ]
-  , p [ text "yeah it works beautiful with effects blah" ]
+  , p [ text "Designed to work nicely with effects.  Set an interpreter which applies to all event handlers" ]
+  , code [r|
+interpreter' :: Eff '[Time, IOE] a -> IO a
+interpreter' = runEff . runTimeIO
+
+configuration = defaultConfiguration
+  { interpreter = interpreter' }
+
+main = serve
+  configuration
+  component
+|]
   ]
 
 practical = div
   [ fancify $ h3 [ text "Practical" ]
-  , p [ text "it's not some re-imagining of the web or some bs" ]
+  , ul
+      [ li [ text "Easy, non-blocking IO.  Each handler is run in a green thread." ]
+      , li [ text "Call Javascript by returning a special Browser event from handlers." ]
+      , li [ text "Receive events from Javascript by placing a Receiver beneath a handler." ]
+      ]
   ]
+
+temp = [r|
+  div { something: y }
+  div { another: x }
+|]
 
 featuresStyle = [style|
   margin-top: 150px;
@@ -165,10 +214,10 @@ featureStyle = [style|
   border-radius: 10px;
   margin: 20px;
   padding: 0px 30px 10px 30px;
-  width: 420px;
+  width: 500px;
 
-  div {
-    width: 666px;
+  li {
+    padding-bottom: 10px;;
   }
 |]
 
@@ -213,7 +262,7 @@ htmlHeadAdditions = [r|
       padding: 0;
       font-family: "Gotham SSm A", "Gotham SSm B", sans-serif;
       font-size: 18px;
-      max-width: 65rem;
+      max-width: 75rem;
       margin: auto;
       color: #514c39;
     }

@@ -1,4 +1,5 @@
 -- | Component for displaying code
+{-# LANGUAGE QuasiQuotes #-}
 
 module Code
   ( code )
@@ -26,4 +27,10 @@ component = countHandler view
 
 -}
 
-code str = Html "pre" [Html "code" [ text str ]]
+codeStyle = [style|
+  border-radius: 10px;
+  background-color: #fcf5bf;
+  padding: 0px 20px 20px 20px;
+|]
+
+code str = codeStyle $ Html "pre" [Html "code" [ text str ] ]
