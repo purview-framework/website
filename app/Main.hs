@@ -174,7 +174,7 @@ component = countHandler view
 
 effectful = div
   [ fancify $ h3 [ text "Effectful" ]
-  , p [ text "Designed to work nicely with effects.  Set an interpreter which applies to all event handlers" ]
+  , p [ text "Designed to work nicely with effects.  Set an interpreter which applies to all event handlers." ]
   , code [r|
 interpreter' :: Eff '[Time, IOE] a -> IO a
 interpreter' = runEff . runTimeIO
