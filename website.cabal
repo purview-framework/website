@@ -30,6 +30,8 @@ executable website
     other-modules:
         Code
       , Logging
+      , Pages.Home
+      , Pages.Docs
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
