@@ -9,6 +9,7 @@ import Data.Typeable
 import Purview
 import Code (code)
 import Pages.Home as Home
+import Pages.Docs as Docs
 
 navStyle = [style|
   width: 100%;
@@ -41,7 +42,7 @@ topLevel location = case location of
     ]
   "/docs" -> div
     [ nav
-    , div [ text "docs" ]
+    , Docs.component
     ]
   _ -> div [ text "Page not found" ]
 
@@ -51,8 +52,8 @@ data RouterEvents = SetLocation String
 router :: String -> Purview () m
 router initialLocation = handler' [] initialLocation reducer topLevel
   where
-    reducer (SetLocation "/doc") _ = ("/doc", [])
-    reducer (SetLocation "/"   ) _ = ("/",    [])
+    reducer (SetLocation "/docs") _ = ("/docs", [])
+    reducer (SetLocation "/"   )  _ = ("/",    [])
 
 htmlHeadAdditions = [r|
   <style>

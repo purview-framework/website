@@ -33,4 +33,12 @@ codeStyle = [style|
   padding: 0px 20px 20px 20px;
 |]
 
-code str = codeStyle $ Html "pre" [Html "code" [ text str ] ]
+encodeHTML ('<':rest) = "&lt;" <> encodeHTML rest
+encodeHTML ('>':rest) = "&gt;" <> encodeHTML rest
+encodeHTML ('&':rest) = "&amp;" <> encodeHTML rest
+encodeHTML (c:rest)   = c : encodeHTML rest
+encodeHTML ""         = ""
+
+code str =
+  let encoded = encodeHTML str
+  in codeStyle $ Html "pre" [Html "code" [ text encoded ] ]

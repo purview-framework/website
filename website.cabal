@@ -32,6 +32,7 @@ executable website
       , Logging
       , Pages.Home
       , Pages.Docs
+      , Pages.Scratch
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
