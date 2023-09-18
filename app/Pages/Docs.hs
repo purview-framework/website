@@ -14,7 +14,7 @@ import Code
 --   [ intro
 --   , html
 --   , style
---   , events (use buttons)
+--   , events
 --   , inputs (use inputs)
 --   , forms (use forms)
 --   , interop
@@ -143,7 +143,7 @@ changingColorButton ready =
 events = div
   [ h1 [ text "Events & State" ]
   , p' [r|
-Events in Purview flow up to Handlers, which can then change state.  The
+Events in Purview bubble up to Handlers, which can then change state.  The
 state from Handlers is passed back down to components.  Let's look at the
 type for a pure handler.
 |]
@@ -184,6 +184,36 @@ x :: (Typeable event, Typeable state, Show state, Eq state)
      can produce, keeping type safety no matter where you plug this in.
   -> Purview parentEvent m
 x = handler
+|]
+  , p' [r|
+Now let's use it for a counter.  This also shows how you can
+create events.
+|]
+  , code [r|
+import Purview (handler, div, h3, text, button, onClick)
+
+data Direction = Up | Down
+  deriving (Show, Eq)
+
+countHandler :: (Int -> Purview Direction m) -> Purview () m
+countHandler = handler [] 0 reducer
+  where
+    reducer Up   state = (\newState -> newState + 1, [])
+    reducer Down state = (\newState -> newState - 1, [])
+
+view :: Int -> Purview Direction m
+view count = div
+  [ h3 [ text (show count) ]
+  , onClick Up $ button [ text "Increase" ]
+  , onClick Down $ button [ text "Decrease" ]
+  ]
+
+component :: Purview () m
+component = countHandler view
+|]
+  , p' [r|
+Events bubble up to handlers, just like in the browsers, and are
+captured by handlers.
 |]
          ]
 
