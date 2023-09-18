@@ -217,9 +217,107 @@ captured by handlers.
 |]
          ]
 
+inputs = div
+  [ h1 [ text "Inputs" ]
+  , p' [r|
+Creating events with values in Purview are done with
+eh don't love that
+|]
+  , code [r|
+component state = div
+  [ [ div [ text state ]
+  , onBlur handleInput $ input []
+  , onChange handleInput $ input []
+  ]
+
+countHandler = handler' [] "" reducer
+  where
+    reducer (Just text) state = (text, [])
+    reducer Nothing     state = ("no text", [])
+
+render = countHandler component
+|]
+  ]
+
+forms = div
+  [ h1 [ text "Forms" ]
+  , code [r|
+submitButton = typeAttr "submit" $ button [ text "submit" ]
+
+component state = div
+  [ div [ id' "text-display" $ div [ text state ] ]
+  , onSubmit id $ form
+    [ id' "text-field" textField
+    , id' "text-submit" submitButton
+    ]
+  ]
+
+countHandler = handler' [] "" reducer
+  where
+    reducer (Just text) state = (text, [])
+    reducer Nothing     state = ("no text", [])
+
+render = countHandler component
+|]
+  ]
+
+interop = div
+  [ h1 [ text "Interop" ]
+  , code [rQ|
+component count = div
+  [ receiver "incrementReceiver" (const "increment")
+  , class' "counter-display" $ div [ text (show count) ]
+  ]
+
+countHandler = handler' [] (0 :: Int) reducer
+  where
+    reducer "increment" state = (state + 1, [])
+    reducer "decrement" state = (state - 1, [])
+
+render = countHandler component
+
+jsCounter = [r|
+  const startCount = () => {
+    window.setInterval(() => {
+      sendEvent("incrementReceiver", "increment")
+    }, 1000)
+  }
+  startCount()
+
+getTest = (defaultConfiguration { eventProducers=[jsCounter] }, render)
+|~]
+|]
+      , code [rQ|
+component count = div
+  [ class' "counter-display" $ div [ text (show count) ]
+  , div [ onClick "increment" $ id' "increment" $ button [ text "increment" ] ]
+  , id' "messages" $ div []
+  ]
+
+countHandler = handler' [] (0 :: Int) reducer
+  where
+    reducer "increment" state =
+      let newState = state + 1
+      in (newState, [Browser "addMessage" (show newState)])
+
+render = countHandler component
+
+jsMessageAdder = [r|
+  const addMessage = (value) => {
+    const messagesBlock = document.querySelector("#messages");
+    messagesBlock.innerHTML = value;
+  }
+  window.addMessage = addMessage;
+|~]
+
+getTest = (defaultConfiguration { eventListeners=[jsMessageAdder] }, render)
+|]
+  ]
+
 component = div
   [ intro
   , html
   , styling
   , events
+  , inputs
   ]
