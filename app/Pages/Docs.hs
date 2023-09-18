@@ -287,7 +287,7 @@ jsCounter = [r|
 getTest = (defaultConfiguration { eventProducers=[jsCounter] }, render)
 |~]
 |]
-      , code [rQ|
+  , code [rQ|
 component count = div
   [ class' "counter-display" $ div [ text (show count) ]
   , div [ onClick "increment" $ id' "increment" $ button [ text "increment" ] ]
@@ -320,4 +320,6 @@ component = div
   , styling
   , events
   , inputs
+  , forms
+  , interop
   ]
