@@ -9,6 +9,8 @@ import Prelude hiding (div)
 import Text.RawString.QQ
 import Purview
 import Code
+import Data.Foldable (find)
+import Data.Maybe (fromMaybe)
 
 -- topcs =
 --   [ intro
@@ -36,6 +38,9 @@ Attributes flow down, events flow up (need a little chart)
 |]
   , p' [r|
 (list of features)
+|]
+  , p' [r|
+example here
 |]
   ]
 
@@ -169,20 +174,26 @@ x :: (Typeable event, Typeable state, Show state, Eq state)
   1. The initial events.  This can be used to send a message to
      itself or the parent on loading, for example to kick off
      an API request.
+
   => [DirectedEvent parentEvent event]
 
   2. The initial state
+
   -> state
 
   3. The reducer.  This is what will handle any events received.
+
   -> (event -> state -> (state -> state, [DirectedEvent parentEvent event]))
 
   4. The continuation, or the component which takes in the state.
+
   -> (state -> Purview event m)
 
   5. The result type.  Notice that it's typed by what events the Handler
      can produce, keeping type safety no matter where you plug this in.
+
   -> Purview parentEvent m
+
 x = handler
 |]
   , p' [r|
@@ -220,8 +231,8 @@ captured by handlers.
 inputs = div
   [ h1 [ text "Inputs" ]
   , p' [r|
-Creating events with values in Purview are done with
-eh don't love that
+Working with inputs in Purview is similar to working with events that
+don't produce values.
 |]
   , code [r|
 component state = div
@@ -266,7 +277,7 @@ interop = div
   , code [rQ|
 component count = div
   [ receiver "incrementReceiver" (const "increment")
-  , class' "counter-display" $ div [ text (show count) ]
+  , div [ text (show count) ]
   ]
 
 countHandler = handler' [] (0 :: Int) reducer
@@ -283,14 +294,14 @@ jsCounter = [r|
     }, 1000)
   }
   startCount()
+|~]
 
 getTest = (defaultConfiguration { eventProducers=[jsCounter] }, render)
-|~]
 |]
   , code [rQ|
 component count = div
-  [ class' "counter-display" $ div [ text (show count) ]
-  , div [ onClick "increment" $ id' "increment" $ button [ text "increment" ] ]
+  [ div [ text (show count) ]
+  , div [ onClick "increment" $ button [ text "increment" ] ]
   , id' "messages" $ div []
   ]
 
@@ -314,12 +325,37 @@ getTest = (defaultConfiguration { eventListeners=[jsMessageAdder] }, render)
 |]
   ]
 
-component = div
-  [ intro
-  , html
-  , styling
-  , events
-  , inputs
-  , forms
-  , interop
+pairs =
+  [ ("",        intro)
+  , ("html",    html)
+  , ("styling", styling)
+  , ("events",  events)
+  , ("inputs",  inputs)
+  , ("forms",   forms)
+  , ("interop", interop)
   ]
+
+buildSidebar location = fmap highlight
+  where highlight (loc, _) =
+          if loc == location
+          then istyle "font-weight: 500;" $ li [ text loc ]
+          else li [ text loc ]
+
+
+buildPage location =
+  let
+    sidebarItems = buildSidebar location pairs
+    content = maybe
+      (div [ text $ "Not Found " <> location ])
+      snd
+      (find (\(loc, _) -> loc == location) pairs)
+  in div
+     [ ul sidebarItems
+     , content
+     ]
+
+parseLocation = dropWhile (/= '/') . drop 1
+
+component location =
+  let location' = parseLocation location
+  in buildPage location'

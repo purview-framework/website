@@ -42,7 +42,7 @@ topLevel location = case location of
     ]
   "/docs" -> div
     [ nav
-    , Docs.component
+    , Docs.component location
     ]
   _ -> div [ text "Page not found" ]
 
