@@ -35,12 +35,12 @@ nav = navStyle $ div
   , link "https://github.com/purview-framework/purview" "Github"
   ]
 
-topLevel location = case location of
-  "/" -> div
+topLevel location = case takeWhile (/= '/') (drop 1 location) of
+  "" -> div
     [ nav
     , Home.component
     ]
-  "/docs" -> div
+  "docs" -> div
     [ nav
     , Docs.component location
     ]

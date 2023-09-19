@@ -326,7 +326,7 @@ getTest = (defaultConfiguration { eventListeners=[jsMessageAdder] }, render)
   ]
 
 pairs =
-  [ ("",        intro)
+  [ ("intro",   intro)
   , ("html",    html)
   , ("styling", styling)
   , ("events",  events)
@@ -341,20 +341,32 @@ buildSidebar location = fmap highlight
           then istyle "font-weight: 500;" $ li [ text loc ]
           else li [ text loc ]
 
+pageStyle = [style|
+  display: flex;
+|]
+
+sidebarStyle = [style|
+  min-width: 100px;
+  list-style-type: none;
+  li {
+    text-decoration: none;
+  }
+|]
 
 buildPage location =
   let
     sidebarItems = buildSidebar location pairs
     content = maybe
-      (div [ text $ "Not Found " <> location ])
+      intro
       snd
       (find (\(loc, _) -> loc == location) pairs)
-  in div
-     [ ul sidebarItems
+  in pageStyle $ div
+     [ sidebarStyle $ ul sidebarItems
      , content
      ]
 
-parseLocation = dropWhile (/= '/') . drop 1
+-- /docs/styles -> styles
+parseLocation = drop 1 . dropWhile (/= '/') . drop 1
 
 component location =
   let location' = parseLocation location
