@@ -8,6 +8,7 @@ import Data.Typeable
 
 import Purview
 import Code (code)
+import Events ( RouterEvents(SetLocation) )
 import Pages.Home as Home
 import Pages.Docs as Docs
 
@@ -47,13 +48,12 @@ topLevel location = case takeWhile (/= '/') (drop 1 location) of
   _ -> div [ text "Page not found" ]
 
 
-data RouterEvents = SetLocation String
-
 router :: String -> Purview () m
 router initialLocation = handler' [] initialLocation reducer topLevel
   where
     reducer (SetLocation "/docs") _ = ("/docs", [])
     reducer (SetLocation "/"   )  _ = ("/",    [])
+    reducer (SetLocation str   )  _ = (str, [])
 
 htmlHeadAdditions = [r|
   <style>

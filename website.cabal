@@ -30,6 +30,7 @@ executable website
     other-modules:
         Code
       , Logging
+      , Events
       , Pages.Home
       , Pages.Docs
       , Pages.Scratch

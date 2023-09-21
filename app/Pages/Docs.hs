@@ -9,8 +9,11 @@ import Prelude hiding (div)
 import Text.RawString.QQ
 import Purview
 import Code
+import Events
 import Data.Foldable (find)
 import Data.Maybe (fromMaybe)
+
+import Debug.Trace
 
 -- topcs =
 --   [ intro
@@ -336,9 +339,9 @@ pairs =
   ]
 
 buildSidebar location = fmap highlight
-  where highlight (loc, _) =
+  where highlight (loc, _) = onClick (SetLocation ("/docs" <> "/" <> loc)) $
           if loc == location
-          then istyle "font-weight: 500;" $ li [ text loc ]
+          then istyle "font-weight: 800;" $ li [ text loc ]
           else li [ text loc ]
 
 pageStyle = [style|
@@ -350,6 +353,9 @@ sidebarStyle = [style|
   list-style-type: none;
   li {
     text-decoration: none;
+    &:hover {
+      cursor: pointer;
+    }
   }
 |]
 
@@ -369,5 +375,5 @@ buildPage location =
 parseLocation = drop 1 . dropWhile (/= '/') . drop 1
 
 component location =
-  let location' = parseLocation location
+  let location' = parseLocation (trace location $ location)
   in buildPage location'
