@@ -40,6 +40,34 @@ import Purview.Server
 -- x = serve defaultConfiguration component
 
 
+-- data CountEvent = Increment | Decrement
+--   deriving (Show, Eq)
+--
+-- view :: Int -> Purview CountEvent m
+-- view count = div
+--   [ h1 [ text (show count) ]
+--   , div [ onClick Increment $ button [ text "increment" ]
+--         , onClick Decrement $ button [ text "decrement" ]
+--         ]
+--   ]
+--
+-- -- arguments are initial actions, initial state, and then the reducer
+-- countHandler = handler' [] (0 :: Int) reducer
+--   where
+--     reducer Increment state = (state + 1, [])
+--     reducer Decrement state = (state - 1, [])
+--
+-- -- url is passed in to the top level component by `serve`
+-- component url = countHandler view
+--
+-- main = serve defaultConfiguration component
+
+import Prelude hiding (div)
+
+import Purview
+import Purview.Server
+
+
 data CountEvent = Increment | Decrement
   deriving (Show, Eq)
 
@@ -52,9 +80,10 @@ view count = div
   ]
 
 -- arguments are initial actions, initial state, and then the reducer
+countHandler :: (Int -> Purview CountEvent m) -> Purview () m
 countHandler = handler' [] (0 :: Int) reducer
   where
-    reducer Increment state = (state + 1, [])
+    reducer Increment state = (state + 1, [])  -- new events can be added in the []
     reducer Decrement state = (state - 1, [])
 
 -- url is passed in to the top level component by `serve`

@@ -94,7 +94,7 @@ array of node types and attributes.  You'll find yourself creating your
 own frequently as you bend Purview to your style.
 |]
   , p' [r|
-Let's create a submit button from the provided building blocks:
+Here's how you can create a submit button from the provided building blocks:
 |]
   , code [r|
 import Purview (Html, Attribute, Generic, render)
@@ -137,7 +137,8 @@ into classes that are added to the component, and in my opinion makes
 for a fun way to write CSS.
 |]
   , p' [r|
-Let's style an unordered list.
+Here's how you can style an unordered list, showing support for basic
+nesting and psuedo-selectors.
 |]
   , code [rQ|
 {-# LANGUAGE QuasiQuotes #-}
@@ -148,6 +149,9 @@ listStyle = [style|
   width: 150px;
   li {
     margin-bottom: 25px;
+    &:hover {
+      cursor: pointer;
+    }
   }
 |~]
 
@@ -226,8 +230,8 @@ x :: (Typeable event, Typeable state, Show state, Eq state)
 x = handler
 |]
   , p' [r|
-Now let's use it for a counter.  This also shows how you can
-create events.
+Here's how you can use it for a counter.  This also shows how you can
+create events with onClick.
 |]
   , code [r|
 import Purview (handler, div, h3, text, button, onClick)
