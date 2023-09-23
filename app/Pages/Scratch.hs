@@ -5,37 +5,59 @@ module Pages.Scratch where
 
 import Prelude hiding (div)
 -- import Purview (style, ul, li, text, render, Purview, handler, h3, onClick, button, div)
+import Data.Typeable
 import Purview
+import Purview.Server
 
-listStyle = [style|
-  width: 150px;
-  li {
-    margin-bottom: 25px;
-  }
-|]
+-- onKeyDown
+--   :: ( Typeable event
+--      , Eq event
+--      , Show event
+--      )
+--   => (Maybe String -> event) -> Purview event m -> Purview event m
+-- onKeyDown = Attribute . On "keydown" Nothing
 
-list items = listStyle $ ul $
-  fmap (\item -> li [ text item ]) items
+-- newConfig =
+--   let events = eventsToListenTo defaultConfiguration
+--   in defaultConfiguration { eventsToListenTo="keydown":events }
+--
+-- main = serve newConfig $ const (div [])
 
-rendered = render $ list [ "a list item" ]
+-- view direction = onClick "toggle" $ button [ text direction ]
+--
+--
+-- reducer :: String -> String -> (String -> String, [DirectedEvent parentEvent String])
+-- reducer event state = case event of
+--   "up"   -> (const "down", [])
+--   "down" -> (const "up", [])
+--
+-- toggleHandler :: (String -> Purview String m) -> Purview parentEvent m
+-- toggleHandler = handler [] "up" reducer
+--
+-- component :: Purview parentEvent m
+-- component = toggleHandler view
 
-data Direction = Up | Down
+-- x = serve defaultConfiguration component
+
+
+data CountEvent = Increment | Decrement
   deriving (Show, Eq)
 
-countHandler :: (Int -> Purview Direction m) -> Purview () m
-countHandler = handler [] 0 reducer
-  where
-    reducer Up   state = (\newState -> newState + 1, [])
-    reducer Down state = (\newState -> newState - 1, [])
-
-view :: Int -> Purview Direction m
+view :: Int -> Purview CountEvent m
 view count = div
-  [ h3 [ text (show count) ]
-  , onClick Up $ button [ text "Increase" ]
-  , onClick Down $ button [ text "Decrease" ]
+  [ h1 [ text (show count) ]
+  , div [ onClick Increment $ button [ text "increment" ]
+        , onClick Decrement $ button [ text "decrement" ]
+        ]
   ]
 
-component :: String -> Purview () m
-component _ = countHandler view
+-- arguments are initial actions, initial state, and then the reducer
+countHandler = handler' [] (0 :: Int) reducer
+  where
+    reducer Increment state = (state + 1, [])
+    reducer Decrement state = (state - 1, [])
 
-y = serve defaultConfiguration component
+-- url is passed in to the top level component by `serve`
+component url = countHandler view
+
+main = serve defaultConfiguration component

@@ -12,6 +12,7 @@ import Data.Time.Clock
 import Effectful
 import Effectful.Dispatch.Dynamic (send)
 import Purview
+import Purview.Server
 
 data Time :: Effect where
   GetCurrentTime :: Time m String

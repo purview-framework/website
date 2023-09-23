@@ -7,6 +7,7 @@ import Text.RawString.QQ (r, rQ)
 import Data.Typeable
 
 import Purview
+import Purview.Server
 import Code (code)
 import Events ( RouterEvents(SetLocation) )
 import Pages.Home as Home
