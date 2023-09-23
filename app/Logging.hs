@@ -1,3 +1,4 @@
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE FlexibleContexts #-}
@@ -8,9 +9,9 @@
 
 module Logging where
 
-import Data.Time.Clock
+import Data.Time.Clock as Clock
 import Effectful
-import Effectful.Dispatch.Dynamic (send)
+import Effectful.Dispatch.Dynamic (send, interpret)
 import Purview
 import Purview.Server
 
@@ -41,7 +42,15 @@ runTimeIO
   :: (IOE :> es)
   => Eff (Time : es) a
   -> Eff es a
-runTimeIO = undefined
+runTimeIO = interpret $ \_ -> \case
+  GetCurrentTime -> liftIO $ show <$> Clock.getCurrentTime
+
+runTimePure
+  :: (IOE :> es)
+  => Eff (Time : es) a
+  -> Eff es a
+runTimePure = interpret $ \_ -> \case
+  GetCurrentTime -> pure "123 o'clock"
 
 view :: String -> Purview event m
 view time = h1 [ text time ]
@@ -53,6 +62,9 @@ type View actions = forall es. Time :> es => Purview actions (Eff es)
 
 interpreter' :: Eff '[Time, IOE] a -> IO a
 interpreter' = runEff . runTimeIO
+
+pureInterpreter :: Eff '[Time, IOE] a -> IO a
+pureInterpreter = runEff . runTimePure
 
 main = serve
   defaultConfiguration { interpreter = interpreter' }

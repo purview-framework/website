@@ -14,6 +14,8 @@ import Data.Foldable (find)
 import Data.Maybe (fromMaybe)
 
 import Debug.Trace
+import Purview.Server (defaultConfiguration)
+import Effectful.State.Static.Local (evalState)
 
 -- topcs =
 --   [ intro
@@ -34,16 +36,40 @@ Purview is a server side rendered framework for building websites with Haskell.
 |]
   , p' [r|
 The philosophy is to provide a way, even if it's janky, for you to do whatever
-you need to do to get it built.
+you need to do to get it built. Attributes flow down, events flow up.
 |]
   , p' [r|
-Attributes flow down, events flow up (need a little chart)
+As a little example of what it looks like:
 |]
-  , p' [r|
-(list of features)
-|]
-  , p' [r|
-example here
+  , code [r|
+module Main where
+
+import Prelude hiding (div)
+import Purview
+import Purview.Server
+
+
+data CountEvent = Increment | Decrement
+  deriving (Show, Eq)
+
+view :: Int -> Purview CountEvent m
+view count = div
+  [ h1 [ text (show count) ]
+  , div [ onClick Increment $ button [ text "increment" ]
+        , onClick Decrement $ button [ text "decrement" ]
+        ]
+  ]
+
+-- arguments are initial actions, initial state, and then the reducer
+countHandler = handler' [] (0 :: Int) reducer
+  where
+    reducer Increment state = (state + 1, [])  -- new events can be added in the []
+    reducer Decrement state = (state - 1, [])
+
+-- url is passed in to the top level component by `serve`
+component url = countHandler view
+
+main = serve defaultConfiguration component
 |]
   ]
 
@@ -167,7 +193,7 @@ x :: (Typeable event, Typeable state, Show state, Eq state)
 x = handler
 |]
   , p' [r|
-Let's break it down with comments.
+Breaking it down with comments:
 |]
   , code [r|
 import Purview (handler)
@@ -234,10 +260,14 @@ captured by handlers.
 inputs = div
   [ h1 [ text "Inputs" ]
   , p' [r|
-Working with inputs in Purview is similar to working with events that
-don't produce values.
+Working with inputs in Purview is similar to working with onClick.  These
+take an additional argument to transform the input, or value gotten from
+the input, into an event for the handler.  In this that's handleInput.
 |]
   , code [r|
+handleInput (Just val) = val
+handleInput Nothign    = ""
+
 component state = div
   [ [ div [ text state ]
   , onBlur handleInput $ input []
@@ -246,8 +276,7 @@ component state = div
 
 countHandler = handler' [] "" reducer
   where
-    reducer (Just text) state = (text, [])
-    reducer Nothing     state = ("no text", [])
+    reducer text state = (text, [])
 
 render = countHandler component
 |]
@@ -277,10 +306,14 @@ render = countHandler component
 
 interop = div
   [ h1 [ text "Interop" ]
+  , p' [r|
+In this example, each second an event is received from Javascript.  It's
+matched by name to the receiver, which turns it into an event for the
+handler.
+|]
   , code [rQ|
 component count = div
-  [ receiver "incrementReceiver" (const "increment")
-  , div [ text (show count) ]
+  [ class' "counter-display" $ div [ text (show count) ]
   ]
 
 countHandler = handler' [] (0 :: Int) reducer
@@ -288,7 +321,9 @@ countHandler = handler' [] (0 :: Int) reducer
     reducer "increment" state = (state + 1, [])
     reducer "decrement" state = (state - 1, [])
 
-render = countHandler component
+countReceiver = receiver "incrementReceiver" (const "increment")
+
+render = countHandler . countReceiver $ component
 
 jsCounter = [r|
   const startCount = () => {
@@ -299,7 +334,12 @@ jsCounter = [r|
   startCount()
 |~]
 
-getTest = (defaultConfiguration { eventProducers=[jsCounter] }, render)
+main = serve defaultConfiguration { javascript=jsCounter } render
+|]
+  , p' [r|
+And in this example, each time you click the "increment" button, an event
+is sent to the browser where addMessage is called.  It sets the value of
+the div with id "messages" to the latest count.
 |]
   , code [rQ|
 component count = div
@@ -324,35 +364,37 @@ jsMessageAdder = [r|
   window.addMessage = addMessage;
 |~]
 
-getTest = (defaultConfiguration { eventListeners=[jsMessageAdder] }, render)
+main = server defaultConfiguration { javascript=jsMessageAdder } render
 |]
   ]
 
 pairs =
-  [ ("intro",   intro)
-  , ("html",    html)
-  , ("styling", styling)
-  , ("events",  events)
-  , ("inputs",  inputs)
-  , ("forms",   forms)
-  , ("interop", interop)
+  [ ("Intro",   "intro",   intro)
+  , ("HTML",    "html",    html)
+  , ("Styling", "styling", styling)
+  , ("Events",  "events",  events)
+  , ("Inputs",  "inputs",  inputs)
+  , ("Forms",   "forms",   forms)
+  , ("Interop", "interop", interop)
   ]
 
 buildSidebar location = fmap highlight
-  where highlight (loc, _) = onClick (SetLocation ("/docs" <> "/" <> loc)) $
+  where highlight (title, loc, _) = onClick (SetLocation ("/docs" <> "/" <> loc)) $
           if loc == location
-          then istyle "font-weight: 800;" $ li [ text loc ]
-          else li [ text loc ]
+          then istyle "font-weight: 800;" $ li [ text title ]
+          else li [ text title ]
 
 pageStyle = [style|
   display: flex;
 |]
 
 sidebarStyle = [style|
-  min-width: 100px;
+  min-width: 150px;
   list-style-type: none;
+  margin-top: 40px;
   li {
     text-decoration: none;
+    padding: 3px;
     &:hover {
       cursor: pointer;
     }
@@ -364,8 +406,8 @@ buildPage location =
     sidebarItems = buildSidebar location pairs
     content = maybe
       intro
-      snd
-      (find (\(loc, _) -> loc == location) pairs)
+      (\(_, _, content) -> content)
+      (find (\(title, loc, _) -> loc == location) pairs)
   in pageStyle $ div
      [ sidebarStyle $ ul sidebarItems
      , content

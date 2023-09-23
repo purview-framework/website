@@ -33,6 +33,7 @@ executable website
       , Events
       , Pages.Home
       , Pages.Docs
+      , Pages.Examples
       , Pages.Scratch
 
     -- LANGUAGE extensions used by modules in this package.

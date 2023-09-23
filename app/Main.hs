@@ -12,6 +12,7 @@ import Code (code)
 import Events ( RouterEvents(SetLocation) )
 import Pages.Home as Home
 import Pages.Docs as Docs
+import Pages.Examples as Examples
 
 navStyle = [style|
   width: 100%;
@@ -32,8 +33,8 @@ link location str =
 
 nav = navStyle $ div
   [ link "/" "Home"
-  , link "/docs" "Docs"
-  , link "/examples" "Examples"
+  , link "/docs/intro" "Docs"
+  , link "/examples/effectful-time" "Examples"
   , link "https://github.com/purview-framework/purview" "Github"
   ]
 
@@ -46,6 +47,10 @@ topLevel location = case takeWhile (/= '/') (drop 1 location) of
     [ nav
     , Docs.component location
     ]
+  "examples" -> div
+    [ nav
+    , Examples.component location
+    ]
   _ -> div [ text "Page not found" ]
 
 
@@ -54,7 +59,7 @@ router initialLocation = handler' [] initialLocation reducer topLevel
   where
     reducer (SetLocation "/docs") _ = ("/docs", [])
     reducer (SetLocation "/"   )  _ = ("/",    [])
-    reducer (SetLocation str   )  _ = (str, [])
+    reducer (SetLocation str   )  _ = (str, [Browser "addLocation" str])
 
 htmlHeadAdditions = [r|
   <style>
@@ -75,5 +80,14 @@ htmlHeadAdditions = [r|
   <link rel="stylesheet" type="text/css" href="https://cloud.typography.com/6107252/6057832/css/fonts.css" />
 |]
 
+js = [r|
+const addLocation = (newLocation) => {
+  history.pushState({}, "", newLocation)
+}
+window.addLocation = addLocation;
+|]
+
 main :: IO ()
-main = serve defaultConfiguration { htmlHead=htmlHeadAdditions, port=8001 } router
+main = serve
+  defaultConfiguration { htmlHead=htmlHeadAdditions, javascript=js, port=8001 }
+  router
