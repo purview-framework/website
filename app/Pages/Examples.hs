@@ -205,8 +205,10 @@ weatherHandler = effectHandler'
 -- API --
 ---------
 
+-- weather.gov requires you to specify a site and email for contact
+-- if something is wrong
 userAgent :: Option scheme
-userAgent = header "User-Agent" "(purview.org, bontaq@gmail.com)"
+userAgent = header "User-Agent" "(purview.org, xxx@gmail.com)"
 
 fetchWeather :: String -> IO Forecast
 fetchWeather forecastLocation = runReq defaultHttpConfig $ do
