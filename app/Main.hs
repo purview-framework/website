@@ -51,7 +51,7 @@ topLevel location = case takeWhile (/= '/') (drop 1 location) of
     [ nav
     , Examples.component location
     ]
-  _ -> div [ text "Page not found" ]
+  _ -> div []
 
 
 router :: String -> Purview () m
@@ -89,5 +89,5 @@ window.addLocation = addLocation;
 
 main :: IO ()
 main = serve
-  defaultConfiguration { htmlHead=htmlHeadAdditions, javascript=js, port=8001 }
+  defaultConfiguration { htmlHead=htmlHeadAdditions, javascript=js, port=8001, secure=True }
   router
