@@ -190,6 +190,7 @@ practical = div
   [ fancify $ h3 [ text "Practical" ]
   , ul
       [ li [ text "Easy, non-blocking IO.  Each handler is run in a green thread." ]
+      , li [ text "Basic hot reloading." ]
       , li [ text "Call Javascript by returning a special Browser event from handlers." ]
       , li [ text "Receive events from Javascript by placing a Receiver beneath a handler." ]
       ]

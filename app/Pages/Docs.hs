@@ -34,8 +34,16 @@ intro = div
 Purview is a server side rendered framework for building websites with Haskell.
 |]
   , p' [r|
-The philosophy is to provide a way, even if it's janky, for you to do whatever
-you need to do to get it built. Attributes flow down, events flow up.
+It takes the best parts from several different frameworks and uses Haskell's power
+to improve upon them.  Server side rendering with websockets from Elixir's Phoenix
+LiveView, reducers from Redux, easy styling from Styled Components, message handling
+from Elm, and effects from Redux Sagas.
+|]
+  , p' [r|
+The improvements we get from Haskell and the design of this framework are easier
+composition of components, complete type safety of events, no need for one monolithic
+state, clarity over event origination and handling, and easy testability (using algebraic
+effects instead of sagas).
 |]
   , p' [r|
 As a little example of what it looks like:
@@ -70,7 +78,10 @@ component url = countHandler view
 
 main = serve defaultConfiguration component
 |]
-  ]
+  , p' [r|
+This is a pretty new framework so feel free to make suggestions (and expect bugs)!
+|]
+         ]
 
 html = div
   [ h1 [ text "HTML" ]

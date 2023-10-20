@@ -14,6 +14,8 @@ import Pages.Home as Home
 import Pages.Docs as Docs
 import Pages.Examples as Examples
 
+targetAttr = Attribute . Generic "target"
+
 navStyle = [style|
   width: 100%;
   min-height: 50px;
@@ -27,9 +29,13 @@ aStyle = [style|
 |]
 
 link location str =
-  aStyle
-  $ href location
-  $ a [ text str ]
+  let
+    target = if take 4 location == "http" then "_blank" else "_self"
+  in
+    aStyle
+    $ targetAttr target
+    $ href location
+    $ a [ text str ]
 
 nav = navStyle $ div
   [ link "/" "Home"
