@@ -62,31 +62,54 @@ import Purview.Server
 --
 -- main = serve defaultConfiguration component
 
-import Prelude hiding (div)
+-- import Prelude hiding (div)
+--
+-- import Purview
+-- import Purview.Server
+--
+--
+-- data CountEvent = Increment | Decrement
+--   deriving (Show, Eq)
+--
+-- view :: Int -> Purview CountEvent m
+-- view count = div
+--   [ h1 [ text (show count) ]
+--   , div [ onClick Increment $ button [ text "increment" ]
+--         , onClick Decrement $ button [ text "decrement" ]
+--         ]
+--   ]
+--
+-- -- arguments are initial actions, initial state, and then the reducer
+-- countHandler :: (Int -> Purview CountEvent m) -> Purview () m
+-- countHandler = handler' [] (0 :: Int) reducer
+--   where
+--     reducer Increment state = (state + 1, [])  -- new events can be added in the []
+--     reducer Decrement state = (state - 1, [])
+--
+-- -- url is passed in to the top level component by `serve`
+-- component url = countHandler view
+--
+-- main = serve defaultConfiguration component
 
 import Purview
-import Purview.Server
+import Purview.Server (serve, defaultConfiguration)
 
+incrementButton = onClick "increment" $ button [ text "+" ]
+decrementButton = onClick "decrement" $ button [ text "-" ]
 
-data CountEvent = Increment | Decrement
-  deriving (Show, Eq)
-
-view :: Int -> Purview CountEvent m
 view count = div
-  [ h1 [ text (show count) ]
-  , div [ onClick Increment $ button [ text "increment" ]
-        , onClick Decrement $ button [ text "decrement" ]
-        ]
+  [ p [ text ("count: " <> show count) ]
+  , incrementButton
+  , decrementButton
   ]
 
--- arguments are initial actions, initial state, and then the reducer
-countHandler :: (Int -> Purview CountEvent m) -> Purview () m
-countHandler = handler' [] (0 :: Int) reducer
-  where
-    reducer Increment state = (state + 1, [])  -- new events can be added in the []
-    reducer Decrement state = (state - 1, [])
+countHandler :: (Integer -> Purview String m) -> Purview () m
+countHandler = handler' [] (0 :: Integer) reducer
 
--- url is passed in to the top level component by `serve`
-component url = countHandler view
+reducer event state = case event of
+  "increment" -> (state + 1, [])
+  "decrement" -> (state - 1, [])
 
-main = serve defaultConfiguration component
+component' _ = countHandler view
+
+main = serve defaultConfiguration { devMode=True } component'

@@ -15,7 +15,6 @@ import Data.Maybe (fromMaybe)
 
 import Debug.Trace
 import Purview.Server (defaultConfiguration)
-import Effectful.State.Static.Local (evalState)
 
 -- topcs =
 --   [ intro
@@ -372,14 +371,52 @@ main = server defaultConfiguration { javascript=jsMessageAdder } render
 |]
   ]
 
+starterStyle = [style|
+  font-size: inherit;
+  a {
+    text-decoration: underline;
+  }
+|]
+
+starter = starterStyle $ div
+  [ h1 [ text "Getting Started" ]
+  , p' [r|
+  This part assumes you don't currently have Haskell setup.  First, you'll want to
+  install <a target="_blank" href="https://www.haskell.org/ghcup/">GHCUp</a>.  This is a nice way to manage Haskell's various tools and versions.
+|]
+  , p' [r|
+  Next, you'll want to choose an editor that works well with Haskell.  The easiest to
+  setup is VSCode, where all you need to do is add the Haskell plugin.  I use
+  <a target="_blank" href="https://github.com/doomemacs/doomemacs">doom eMacs</a> which takes
+  a little more work but is more responsive.
+|]
+  , p' [r|
+  Now you'll want to clone the <a target="_blank" href="https://github.com/purview-framework/purview-template">starter template</a>.  This contains a basic
+  example to get started with.  Before running it, you'll want to use GHCup to select your version
+  of GHC.  Choose the recommended version, which as of this writing is 9.4.7, although it should work
+  with newer versions as well.  To select and install it, just do:
+|]
+  , code [r|
+  ghcup tui
+|]
+  , p' [r|
+  In your terminal.  Once you've got everything set up, you can build and run the project with:
+|]
+  , code [r|
+  cabal build
+  cabal exec purview-template
+|]
+  ]
+
 pairs =
-  [ ("Intro",   "intro",   intro)
-  , ("HTML",    "html",    html)
-  , ("Styling", "styling", styling)
-  , ("Events",  "events",  events)
-  , ("Inputs",  "inputs",  inputs)
-  , ("Forms",   "forms",   forms)
-  , ("Interop", "interop", interop)
+  [ ("Intro",       "intro",   intro)
+  , ("Get Started", "start",   starter)
+  , ("HTML",        "html",    html)
+  , ("Styling",     "styling", styling)
+  , ("Events",      "events",  events)
+  , ("Inputs",      "inputs",  inputs)
+  , ("Forms",       "forms",   forms)
+  , ("Interop",     "interop", interop)
   ]
 
 buildSidebar location = fmap highlight

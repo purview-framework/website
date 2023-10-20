@@ -94,5 +94,5 @@ window.addLocation = addLocation;
 
 main :: IO ()
 main = serve
-  defaultConfiguration { htmlHead=htmlHeadAdditions, javascript=js, port=8001, secure=True }
+  defaultConfiguration { htmlHead=htmlHeadAdditions, javascript=js, port=8001, secure=False }
   router
