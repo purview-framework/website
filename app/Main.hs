@@ -35,6 +35,7 @@ nav = navStyle $ div
   [ link "/" "Home"
   , link "/docs/intro" "Docs"
   , link "/examples/effectful-time" "Examples"
+  , link "https://matrix.to/#/#purview:matrix.org" "Chat"
   , link "https://hackage.haskell.org/package/purview" "Hackage"
   , link "https://github.com/purview-framework/purview" "Github"
   ]
